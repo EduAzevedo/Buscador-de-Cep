@@ -14,14 +14,28 @@ void main() => runApp(
       }),
     );
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    Cidade? cidade;
-    TextEditingController value = TextEditingController();
+  State<Home> createState() => _HomeState();
+}
 
+class _HomeState extends State<Home> {
+  Cidade? cidade;
+  TextEditingController value = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  Future<void> _submit() async {
+    final isValid = _formKey.currentState?.validate() ?? false;
+
+    if (!isValid) {
+      return;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: SizedBox(
@@ -44,9 +58,17 @@ class Home extends StatelessWidget {
                     Container(
                       height: 40,
                     ),
-                    TextField(
+                    TextFormField(
                       controller: value,
-                      maxLength: 8,
+                      maxLength: 9,
+                      validator: (cepInput) {
+                        final cep = cepInput ?? '';
+                        if (cep.isEmpty || cep.length < 8) {
+                          return 'Informe um CEP válido!';
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                           filled: true,
                           prefixIcon: Icon(Icons.search, color: Colors.black),
@@ -60,7 +82,7 @@ class Home extends StatelessWidget {
                                   BorderRadius.all(Radius.circular(12)),
                               borderSide:
                                   BorderSide(color: Colors.black, width: 1.0)),
-                          labelText: 'Insira o CEP (Ex: 4940000)',
+                          labelText: 'Insira o CEP (Ex: 49400-000)',
                           labelStyle: TextStyle(color: Colors.black45)),
                     ),
                     Container(
@@ -70,7 +92,7 @@ class Home extends StatelessWidget {
                       width: 80.w,
                       child: ElevatedButton(
                         onPressed: () {
-                          if (value.text.length == 8) {
+                          if (value.text.length == 9) {
                             showModalBottomSheet(
                               elevation: 5,
                               isScrollControlled: true,
